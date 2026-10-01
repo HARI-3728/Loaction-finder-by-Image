@@ -1,7 +1,9 @@
-// src/exif.js — EXIF GPS extraction
+﻿// src/exif.js — EXIF GPS extraction
 // Usage: getGpsFromBuffer(buffer) → { lat, lon } | null
 
 function getGpsFromBuffer(buffer) {
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0) return null;
+  if (!Buffer.isBuffer(buffer) || buffer.length === 0) return null;
   try {
     const tags = require('exifreader').load(buffer, { expanded: true });
     const gps = tags.GPS;
@@ -40,3 +42,5 @@ function round(v, d) {
 }
 
 module.exports = { getGpsFromBuffer };
+
+

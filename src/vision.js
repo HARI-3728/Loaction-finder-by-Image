@@ -1,8 +1,7 @@
-// src/vision.js — Gemini vision + OpenRouter fallback
-// Usage: analyzeImage(buffer, mimeType) → { determinable, country, state, city, place_name, confidence, clues }
+// src/vision.js - Gemini vision with OpenRouter (Llama) fallback
+// Usage: analyzeImage(buffer, mimeType) -> { determinable, country, state, city, place_name, confidence, clues, source }
 
 const config = require('./config');
-const { callGeminiVision } = require('./llm');
 
 const VISION_PROMPT = `You are a geolocation vision model. Analyze this outdoor photo and estimate where it was taken.
 Return ONLY a JSON object, no markdown, no extra text:
@@ -28,8 +27,7 @@ Rules:
 - Return ONLY the JSON object. No preamble, no explanation.`;
 
 async function analyzeImage(buffer, mimeType) {
-  const base64 = buffer.toString('base64');
-  const dataUri = `data:${mimeType};base64,${base64}`;
+  const dataUri = `data:${mimeType};base64,${buffer.toString('base64')}`;
 
   // Try Gemini first
   try {
@@ -53,22 +51,27 @@ async function analyzeImage(buffer, mimeType) {
 }
 
 async function callGeminiVision(dataUri, prompt) {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.VISION_MODEL}:generateContent?key=${config.GEMINI_API_KEY}`;
+  // The key goes in a header, not in the URL, so it cannot leak into logs or error messages.
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${config.VISION_MODEL}:generateContent`;
   const body = {
     contents: [{
       parts: [
         { text: prompt },
-        { inline_data: { mime_type: dataUri.match(/data:(.*?);/)?.[1] || 'image/jpeg', data: dataUri.split(',')[1] } }
-      ]
+        { inline_data: { mime_type: dataUri.match(/data:(.*?);/)?.[1] || 'image/jpeg', data: dataUri.split(',')[1] } },
+      ],
     }],
-    generation_config: { temperature: 0.1, max_output_tokens: 1024 }
+    generationConfig: {
+      temperature: 0.1,
+      maxOutputTokens: 2048, // newer Gemini models may spend tokens on thinking, so leave room
+      responseMimeType: 'application/json',
+    },
   };
 
   const resp = await fetch(url, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', 'x-goog-api-key': config.GEMINI_API_KEY },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(config.VISION_TIMEOUT_MS)
+    signal: AbortSignal.timeout(config.VISION_TIMEOUT_MS),
   });
 
   if (!resp.ok) {
@@ -77,7 +80,8 @@ async function callGeminiVision(dataUri, prompt) {
   }
 
   const json = await resp.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  const parts = json?.candidates?.[0]?.content?.parts || [];
+  const text = parts.filter((p) => !p.thought).map((p) => p.text || '').join('');
   return extractJSON(text);
 }
 
@@ -89,23 +93,23 @@ async function callOpenRouterVision(dataUri, prompt) {
       role: 'user',
       content: [
         { type: 'text', text: prompt },
-        { type: 'image_url', image_url: { url: dataUri } }
-      ]
+        { type: 'image_url', image_url: { url: dataUri } },
+      ],
     }],
     max_tokens: 1024,
-    temperature: 0.1
+    temperature: 0.1,
   };
 
   const resp = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': `Bearer ${config.OPENROUTER_API_KEY}`,
+      Authorization: `Bearer ${config.OPENROUTER_API_KEY}`,
       'HTTP-Referer': 'https://image-location-finder.local',
-      'X-Title': 'Image Location Finder'
+      'X-Title': 'Image Location Finder',
     },
     body: JSON.stringify(body),
-    signal: AbortSignal.timeout(config.VISION_TIMEOUT_MS)
+    signal: AbortSignal.timeout(config.VISION_TIMEOUT_MS),
   });
 
   if (!resp.ok) {
@@ -120,33 +124,27 @@ async function callOpenRouterVision(dataUri, prompt) {
 
 function extractJSON(text) {
   if (!text) return null;
-  // Try direct parse
   try {
     const match = text.match(/\{[\s\S]*\}/);
     if (match) return JSON.parse(match[0]);
-  } catch (_) {}
+  } catch (_) {
+    // fall through
+  }
   return null;
 }
 
 function normalizeResult(raw, source) {
   if (!raw || typeof raw !== 'object') return null;
-  const determinable = Boolean(raw.determinable);
-  const confidence = Math.max(0, Math.min(1, Number(raw.confidence) || 0));
-  const country = raw.country ? String(raw.country).trim() : null;
-  const state = raw.state ? String(raw.state).trim() : null;
-  const city = raw.city ? String(raw.city).trim() : null;
-  const place_name = raw.place_name ? String(raw.place_name).trim() : null;
-  const clues = Array.isArray(raw.clues) ? raw.clues.map(String).slice(0, 5) : [];
-
+  const str = (v) => (v ? String(v).trim() || null : null);
   return {
-    determinable,
-    country: country || null,
-    state: state || null,
-    city: city || null,
-    place_name: place_name || null,
-    confidence,
-    clues,
-    source
+    determinable: raw.determinable === true,
+    country: str(raw.country),
+    state: str(raw.state),
+    city: str(raw.city),
+    place_name: str(raw.place_name),
+    confidence: Math.max(0, Math.min(1, Number(raw.confidence) || 0)),
+    clues: Array.isArray(raw.clues) ? raw.clues.map(String).slice(0, 5) : [],
+    source,
   };
 }
 

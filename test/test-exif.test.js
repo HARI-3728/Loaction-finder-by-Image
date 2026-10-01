@@ -1,4 +1,4 @@
-// test/test-exif.test.js — Tests for EXIF GPS extraction
+﻿// test/test-exif.test.js â€” Tests for EXIF GPS extraction
 const { describe, it } = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -10,23 +10,23 @@ describe('exif', () => {
   it('returns null coordinates for buffer without GPS', () => {
     // Minimal JPEG SOI + EOI (no EXIF, no GPS)
     const buf = Buffer.from([0xFF, 0xD8, 0xFF, 0xD9]);
-    const result = exif.extractGps(buf);
+    const result = exif.getGpsFromBuffer(buf);
     assert.equal(result, null);
   });
 
   it('returns null for empty buffer', () => {
-    const result = exif.extractGps(Buffer.alloc(0));
+    const result = exif.getGpsFromBuffer(Buffer.alloc(0));
     assert.equal(result, null);
   });
 
   it('returns null for non-buffer input', () => {
-    const result = exif.extractGps('not a buffer');
+    const result = exif.getGpsFromBuffer('not a buffer');
     assert.equal(result, null);
   });
 
   it('getGpsData returns null for no GPS', () => {
     const buf = Buffer.from([0xFF, 0xD8, 0xFF, 0xD9]);
-    const result = exif.getGpsData(buf);
+    const result = exif.getGpsFromBuffer(buf);
     assert.equal(result, null);
   });
 });

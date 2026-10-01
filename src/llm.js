@@ -1,4 +1,4 @@
-// src/llm.js — LLM helper: OpenAI-compatible API calls (OpenRouter / Groq)
+﻿// src/llm.js — LLM helper: OpenAI-compatible API calls (OpenRouter / Groq)
 // Usage: complete({ provider, model, messages, temperature, maxTokens, timeoutMs }) → { text }
 //        parseJson(text) → Object | null
 
@@ -7,11 +7,11 @@ const config = require('./config');
 const PROVIDERS = {
   openrouter: {
     baseUrl: 'https://openrouter.ai/api/v1',
-    apiKey: () => config.OPENROUTER_API_KEY,
+    apiKey: () => process.env.OPENROUTER_API_KEY,
   },
   groq: {
     baseUrl: 'https://api.groq.com/openai/v1',
-    apiKey: () => config.GROQ_API_KEY,
+    apiKey: () => process.env.GROQ_API_KEY,
   },
 };
 

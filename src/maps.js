@@ -1,24 +1,42 @@
-// src/maps.js — Google Maps URL builder (no API key needed)
-// Usage: buildMapsUrl({ lat, lon }) → string
-//        buildMapsUrl({ placeText }) → string
+function buildMapsUrl(location) {
+  if (!location || typeof location !== 'object') {
+    return '';
+  }
 
-/**
- * Build a Google Maps search URL.
- * @param {Object} opts
- * @param {number} [opts.lat]
- * @param {number} [opts.lon]
- * @param {string} [opts.placeText]
- * @returns {string}
- */
-function buildMapsUrl({ lat, lon, placeText } = {}) {
-  if (typeof lat === 'number' && typeof lon === 'number') {
+  // GPS coordinates
+  const lat = Number(location.lat);
+  const lon = Number(location.lon);
+
+  if (Number.isFinite(lat) && Number.isFinite(lon)) {
     return `https://www.google.com/maps/search/?api=1&query=${lat},${lon}`;
   }
-  if (placeText && typeof placeText === 'string' && placeText.trim()) {
-    const query = encodeURIComponent(placeText.trim());
-    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+
+  // Place text
+  if (location.placeText) {
+    const placeText = String(location.placeText).trim();
+
+    if (placeText) {
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(placeText)}`;
+    }
   }
-  return '';
+
+  // Application location fields
+  const parts = [
+    location.place_name,
+    location.city,
+    location.state,
+    location.country
+  ]
+    .filter(value => value !== null && value !== undefined && String(value).trim())
+    .map(value => String(value).trim());
+
+  if (parts.length === 0) {
+    return '';
+  }
+
+  const query = [...new Set(parts)].join(', ');
+
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
 }
 
 module.exports = { buildMapsUrl };

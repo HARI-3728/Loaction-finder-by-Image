@@ -1,5 +1,5 @@
 // test/test-config.test.js — Tests for config validation
-const { describe, it } = require('node:test');
+const { describe, it , afterEach } = require('node:test');
 const assert = require('node:assert/strict');
 const path = require('path');
 const fs = require('fs');
