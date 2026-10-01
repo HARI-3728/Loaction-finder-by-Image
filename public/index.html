@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Location Finder</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="logo" aria-hidden="true">📍</div>
+    <span class="brand">Image Location Finder</span>
+    <nav class="topbar-nav" aria-label="Main navigation">
+      <a href="#how">How it works</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#help">Help</a>
+    </nav>
+  </div>
+</header>
+
+<main class="main">
+  <div class="grid">
+    <!-- Left: info card -->
+    <section class="card info-card" aria-labelledby="info-heading">
+      <span class="label">PHOTO GEOLOCATION</span>
+      <h1 id="info-heading">Find where a photo was taken.</h1>
+      <p class="subtitle">Upload an outdoor photo and we'll estimate the location from visible clues.</p>
+      <ul class="features">
+        <li><span class="check" aria-hidden="true">✓</span> Structured result: country, state, city, place name</li>
+        <li><span class="check" aria-hidden="true">✓</span> Confidence shown with every answer</li>
+        <li><span class="check" aria-hidden="true">✓</span> Says so when the place can't be determined</li>
+      </ul>
+    </section>
+
+    <!-- Right: upload / result card -->
+    <section class="card action-card" id="action-card" aria-labelledby="action-heading">
+      <h2 id="action-heading" class="sr-only">Upload photo</h2>
+
+      <!-- Upload state -->
+      <div id="upload-state">
+        <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload photo — drag and drop or click to browse">
+          <input type="file" id="file-input" accept="image/jpeg,image/png,image/webp" hidden>
+          <div class="dropzone-content">
+            <span class="drop-icon" aria-hidden="true">📁</span>
+            <p class="drop-text"><strong>Click to browse</strong> or drag and drop</p>
+            <p class="drop-hint">JPEG, PNG, WebP — max 10 MB</p>
+          </div>
+        </div>
+        <div class="preview-row" id="preview-row" hidden>
+          <img id="preview" alt="Preview of selected photo">
+          <span id="file-name" class="file-name"></span>
+        </div>
+        <button type="button" class="btn-primary" id="btn-find" disabled aria-label="Find location">Find location</button>
+        <p id="client-error" class="client-error" role="alert"></p>
+      </div>
+
+      <!-- Loading state -->
+      <div id="loading-state" hidden>
+        <div class="spinner" aria-hidden="true"></div>
+        <p class="status-text">Analyzing photo…</p>
+      </div>
+
+      <!-- Result state -->
+      <div id="result-state" hidden>
+        <div class="result-header">
+          <img id="result-thumb" alt="" class="result-thumb">
+          <span id="result-fname" class="file-name"></span>
+        </div>
+        <h3>Estimated location</h3>
+        <span class="confidence-badge" id="confidence-badge"></span>
+        <div class="tiles">
+          <div class="tile"><span class="tile-label">COUNTRY</span><span class="tile-value" id="t-country"></span></div>
+          <div class="tile"><span class="tile-label">STATE</span><span class="tile-value" id="t-state"></span></div>
+          <div class="tile"><span class="tile-label">CITY</span><span class="tile-value" id="t-city"></span></div>
+          <div class="tile"><span class="tile-label">PLACE NAME</span><span class="tile-value" id="t-place"></span></div>
+        </div>
+        <p class="clues-line" id="clues-line"></p>
+        <div class="result-actions">
+          <a id="btn-maps" class="btn-primary" target="_blank" rel="noopener">Open in Google Maps</a>
+          <button type="button" class="btn-secondary" id="btn-retry">Try another photo</button>
+        </div>
+      </div>
+
+      <!-- Undetermined state -->
+      <div id="undet-state" hidden>
+        <div class="result-header">
+          <img id="undet-thumb" alt="" class="result-thumb">
+          <span id="undet-fname" class="file-name"></span>
+        </div>
+        <p class="undet-msg">We couldn't determine the location from this image.</p>
+        <p class="clues-line" id="undet-clues"></p>
+        <button type="button" class="btn-secondary" id="btn-undet-retry">Try another photo</button>
+      </div>
+
+      <!-- Error state -->
+      <div id="error-state" hidden>
+        <p class="error-msg" id="error-msg"></p>
+        <button type="button" class="btn-primary" id="btn-error-retry">Retry</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer class="footer">Results are estimates based on visual clues and may be wrong.</footer>
+
+<script src="/app.js"></script>
+</body>
+</html>
