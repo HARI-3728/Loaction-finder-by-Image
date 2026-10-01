@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment files (never commit real keys)
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Evaluation photos (large or private); keep the folder itself
+eval/photos/*
+!eval/photos/.gitkeep
+eval/results/
+
+# Uploaded or temporary images
+uploads/
+tmp/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# Build output
+dist/
+build/
+.env
+.env.*
+!.env.example

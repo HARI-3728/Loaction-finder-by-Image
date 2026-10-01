@@ -172,9 +172,9 @@ app.post('/locate', upload.single('image'), async (req, res) => {
 });
 
 // Serve static frontend
-app.use(express.static(path.join(__dirname, '..', 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 const PORT = config.APP_PORT || 3000;
