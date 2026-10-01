@@ -87,4 +87,7 @@ async function forwardGeocode(placeText) {
   };
 }
 
-module.exports = { reverseGeocode, forwardGeocode };
+/** Alias: resolve a free-form place name string to coordinates (same as forwardGeocode). */
+const reverseGeocodeFromPlace = forwardGeocode;
+
+module.exports = { reverseGeocode, forwardGeocode, reverseGeocodeFromPlace };

@@ -91,4 +91,7 @@ async function merge(vision, geo) {
   }
 }
 
-module.exports = { merge };
+/** Alias used by server.js */
+const callMergeProvider = merge;
+
+module.exports = { merge, callMergeProvider };
