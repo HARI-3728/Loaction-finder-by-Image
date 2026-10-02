@@ -211,7 +211,3 @@ Returns `{ "status": "ok", "timestamp": "..." }`.
 ## Contributing
 
 Issues and pull requests are welcome. Please do not commit `.env` files or API keys.
-
-## License
-
-Add a license file (for example MIT) before publishing.
