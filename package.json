@@ -2,22 +2,21 @@
   "name": "image-location-finder",
   "version": "1.0.0",
   "description": "One-page website to estimate where an outdoor photo was taken",
-  "main": "server/server.js",
+  "main": "server.js",
   "scripts": {
-    "start": "node server/server.js",
-    "dev":   "node --watch server/server.js",
-    "test":  "node --test test/*.test.js",
-    "eval":  "node eval/evaluate.js"
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "node --test test/*.test.js",
+    "eval": "node eval/evaluate.js"
   },
   "dependencies": {
-    "dotenv":             "^16.5.0",
-    "exifreader":         "^4.16.0",
-    "express":            "^4.21.0",
+    "dotenv": "^16.5.0",
+    "exifreader": "^4.16.0",
+    "express": "^4.21.0",
     "express-rate-limit": "^7.2.0",
-    "file-type":          "^22.1.1",
-    "multer":             "^2.4.0",
-    "node-fetch":         "^2.7.0",
-    "sharp":              "^0.33.0"
+    "file-type": "^22.1.1",
+    "multer": "^2.4.0",
+    "node-fetch": "^2.7.0"
   },
   "devDependencies": {
     "supertest": "^7.0.0"

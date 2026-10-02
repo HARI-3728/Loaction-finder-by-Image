@@ -1,4 +1,6 @@
-﻿const express = require('express');
+require('dotenv').config();
+
+const express = require('express');
 const path = require('path');
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
@@ -13,7 +15,7 @@ const fileTypeFromBuffer = async (buf) => {
 const { getGpsFromBuffer } = require('./src/exif');
 const { analyzeImage } = require('./src/vision');
 const { reverseGeocode } = require('./src/geocode');
-const { mergeWithNominatim } = require('./src/merge');
+const { merge: mergeWithNominatim } = require('./src/merge');
 const { buildMapsUrl } = require('./src/maps');
 const config = require('./src/config');
 
@@ -150,7 +152,9 @@ app.post('/locate', upload.single('image'), async (req, res) => {
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('*', (req, res) => {
+// Fallback: serve the page for any other GET (works on Express 4 and 5).
+app.use((req, res) => {
+  if (req.method !== 'GET') return res.status(404).json({ error: 'Not found.' });
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 

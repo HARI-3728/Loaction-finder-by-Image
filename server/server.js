@@ -39,7 +39,7 @@ const PORT = parseInt(process.env.PORT, 10) || CONFIG.APP_PORT || 3000;
 // Rate-limit middleware
 const limiter = rateLimit({
   windowMs: CONFIG.RATE_LIMIT_WINDOW_MS,
-  max:      CONFIG.RATE_LIMIT_MAX,
+  limit:    CONFIG.RATE_LIMIT_MAX,
 });
 app.use(limiter);
 
@@ -223,10 +223,12 @@ app.use((err, _req, res, _next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Start
+// Start (only when run directly, not when required by tests)
 // ─────────────────────────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`🚀 Server listening on http://localhost:${PORT}`);
-});
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 Server listening on http://localhost:${PORT}`);
+  });
+}
 
 module.exports = app; // exported for tests
